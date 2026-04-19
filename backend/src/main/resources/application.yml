@@ -1,0 +1,45 @@
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  application:
+    name: manage-students
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=STManager;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: 123456Aa
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+logging:
+  level:
+    root: info
+
+app:
+  storage:
+    avatars-subdir: data/uploads/avatars
+    credentials-subdir: data/uploads/credentials
+    insurances-subdir: data/uploads/insurances
+    labor-contracts-subdir: data/uploads/labor-contracts
+    research-works-subdir: data/uploads/research-works
+  jwt:
+    # Tối thiểu 32 byte cho HS256; đổi trong môi trường thật (biến môi trường / vault).
+    secret: "dev-jwt-secret-change-me-32bytes-min!!"
+    expiration-ms: 86400000
+
