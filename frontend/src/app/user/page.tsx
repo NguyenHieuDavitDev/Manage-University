@@ -66,6 +66,24 @@ export default function UserHomePage() {
                 />
               </Link>
             </li>
+            <li>
+              <Link
+                href="/user/chat"
+                className="group flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4 transition hover:border-indigo-200 hover:bg-indigo-50/50"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200/80 group-hover:ring-indigo-200">
+                  <FaIcon icon="fa-solid fa-robot" />
+                </span>
+                <span>
+                  <span className="block font-semibold text-slate-900">Trợ lý AI</span>
+                  <span className="text-sm text-slate-500">Hỏi bất kỳ điều gì với Gemini AI</span>
+                </span>
+                <FaIcon
+                  icon="fa-solid fa-chevron-right"
+                  className="ml-auto text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-indigo-500"
+                />
+              </Link>
+            </li>
           </ul>
         </UserSurface>
       </div>

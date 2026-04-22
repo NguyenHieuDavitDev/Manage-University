@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.evn[.properties],optional:file:.env[.properties]
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   application:
@@ -42,4 +44,9 @@ app:
     # Tối thiểu 32 byte cho HS256; đổi trong môi trường thật (biến môi trường / vault).
     secret: "dev-jwt-secret-change-me-32bytes-min!!"
     expiration-ms: 86400000
+  gemini:
+    # Khuyên dùng biến môi trường APP_GEMINI_API_KEY thay vì ghi trực tiếp vào file.
+    api-key: ${APP_GEMINI_API_KEY:}
+    model: ${APP_GEMINI_MODEL:gemini-3-flash-preview}
+    base-url: ${APP_GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
 

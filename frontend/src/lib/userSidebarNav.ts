@@ -14,6 +14,11 @@ export const USER_SIDEBAR_NAV: NavItemWithPermission[] = [
     icon: "fa-solid fa-shield-halved",
     permissionCode: "user:roles",
   },
+  {
+    href: "/user/chat",
+    label: "Trợ lý AI",
+    icon: "fa-solid fa-robot",
+  },
 ];
 
 export function userSidebarPermissionCodes(): { code: string; label: string }[] {
