@@ -48,6 +48,9 @@ public class CourseClass {
     @Column(name = "description", columnDefinition = "NVARCHAR(500)")
     private String description;
 
+    @Column(name = "gradebook_finalized", nullable = false)
+    private boolean gradebookFinalized;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -128,6 +131,14 @@ public class CourseClass {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isGradebookFinalized() {
+        return gradebookFinalized;
+    }
+
+    public void setGradebookFinalized(boolean gradebookFinalized) {
+        this.gradebookFinalized = gradebookFinalized;
     }
 
     public Instant getCreatedAt() {

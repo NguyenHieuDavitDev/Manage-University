@@ -22,6 +22,8 @@ public interface CourseClassEnrollmentRepository
 
     List<CourseClassEnrollment> findByCourseClass_IdOrderByEnrolledAtAsc(Long courseClassId);
 
+    Optional<CourseClassEnrollment> findByCourseClass_IdAndUser_Id(Long courseClassId, UUID userId);
+
     @EntityGraph(attributePaths = {"courseClass", "courseClass.course"})
     Page<CourseClassEnrollment> findByUser_Id(UUID userId, Pageable pageable);
 

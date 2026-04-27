@@ -147,7 +147,7 @@ export function AdminLteShell({
 
       <div className="flex min-h-0 flex-1">
         <aside
-          className={`lte-sidebar fixed inset-y-0 left-0 z-30 flex w-[15.5rem] shrink-0 flex-col border-r border-black/10 bg-[#222d32] pt-14 text-[#b8c7ce] shadow-[4px_0_24px_rgba(0,0,0,0.12)] transition-[transform,width] duration-300 ease-out md:static md:z-0 md:translate-x-0 md:pt-0 md:shadow-none ${
+          className={`lte-sidebar fixed inset-y-0 left-0 z-30 flex min-h-0 w-[15.5rem] shrink-0 flex-col overflow-hidden border-r border-black/10 bg-[#222d32] pt-14 text-[#b8c7ce] shadow-[4px_0_24px_rgba(0,0,0,0.12)] transition-[transform,width] duration-300 ease-out md:sticky md:top-14 md:z-10 md:h-[calc(100vh-3.5rem)] md:self-start md:translate-x-0 md:pt-0 md:shadow-none ${
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           } ${sidebarCollapsed ? "md:w-[4.25rem]" : "md:w-56"}`}
         >
@@ -159,7 +159,7 @@ export function AdminLteShell({
             <FaIcon icon="fa-solid fa-layer-group" className="shrink-0 text-[#3c8dbc]" />
             {!sidebarCollapsed && <span className="truncate">{brandSubtitle}</span>}
           </div>
-          <ul className="flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3">
+          <ul className="flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3 [scrollbar-gutter:stable]">
             {navItems.map((item) => {
               const active =
                 pathname === item.href ||

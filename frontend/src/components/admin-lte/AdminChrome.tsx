@@ -5,6 +5,7 @@ import { fetchMe } from "@/lib/api/auth";
 import { readAuthMeSnapshot, writeAuthMeSnapshot } from "@/lib/auth-me-snapshot";
 import { ADMIN_SIDEBAR_NAV } from "@/lib/adminSidebarNav";
 import { filterNavByDisplayPermissions } from "@/lib/navFilter";
+import { normalizedRoleCodes } from "@/lib/portalRouting";
 import type { AuthMeResponse } from "@/lib/types/auth";
 import { useEffect, useMemo, useState } from "react";
 
@@ -36,10 +37,18 @@ export function AdminChrome({ children }: Props) {
     };
   }, []);
 
-  const navItems = useMemo(
-    () => filterNavByDisplayPermissions(ADMIN_SIDEBAR_NAV, me, "admin"),
-    [me]
-  );
+  const navItems = useMemo(() => {
+    const filtered = filterNavByDisplayPermissions(ADMIN_SIDEBAR_NAV, me, "admin");
+    if (me == null) return filtered;
+    const isAdmin = normalizedRoleCodes(me?.roles ?? []).has("ADMIN");
+    if (isAdmin) return filtered;
+    return filtered.filter(
+      (item) =>
+        item.href !== "/admin/users" &&
+        item.href !== "/admin/permissions" &&
+        item.href !== "/admin/roles"
+    );
+  }, [me]);
 
   return (
     <AdminLteShell

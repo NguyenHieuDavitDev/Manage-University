@@ -25,7 +25,19 @@ import {
   fetchDepartmentPage,
   updateDepartment,
 } from "@/lib/api/departments";
+import {
+  createExamType,
+  deleteExamType,
+  fetchExamTypePage,
+  updateExamType,
+} from "@/lib/api/examTypes";
 import { createFaculty, deleteFaculty, fetchFacultyPage, updateFaculty } from "@/lib/api/faculties";
+import {
+  createGradeComponent,
+  deleteGradeComponent,
+  fetchGradeComponentPage,
+  updateGradeComponent,
+} from "@/lib/api/gradeComponents";
 import {
   createPosition,
   deletePosition,
@@ -43,8 +55,12 @@ import type {
   CoursePayload,
   Department,
   DepartmentPayload,
+  ExamType,
+  ExamTypePayload,
   Faculty,
   FacultyPayload,
+  GradeComponent,
+  GradeComponentPayload,
   Position,
   PositionPayload,
   SpringPage,
@@ -60,6 +76,8 @@ export type MasterDataKind =
   | "building"
   | "course"
   | "department"
+  | "examType"
+  | "gradeComponent"
   | "position";
 
 type FormState = {
@@ -69,6 +87,8 @@ type FormState = {
   positionCategory: string;
   /** Chỉ dùng khi kind === "course" — số tín chỉ */
   credits: string;
+  /** Chỉ dùng khi kind === "gradeComponent" — tỷ trọng phần trăm */
+  weightPercent: string;
 };
 
 const DEFAULT_POSITION_CATEGORIES = ["QUAN_LY", "GIANG_DAY", "HANH_CHINH", "HO_TRO"] as const;
@@ -100,6 +120,8 @@ type LoadedState =
   | { kind: "building"; page: SpringPage<Building> }
   | { kind: "course"; page: SpringPage<Course> }
   | { kind: "department"; page: SpringPage<Department> }
+  | { kind: "examType"; page: SpringPage<ExamType> }
+  | { kind: "gradeComponent"; page: SpringPage<GradeComponent> }
   | { kind: "position"; page: SpringPage<Position> };
 
 const META: Record<
@@ -165,6 +187,26 @@ const META: Record<
     sort: "id",
     emptyHint: "Thử từ khóa khác hoặc thêm phòng ban mới.",
   },
+  examType: {
+    title: "Loại kỳ thi",
+    crumb: "Loại kỳ thi",
+    titleIcon: "fa-solid fa-file-signature",
+    listTitle: "Danh sách loại kỳ thi",
+    codeLabel: "Mã loại thi",
+    nameLabel: "Tên loại thi",
+    sort: "id",
+    emptyHint: "Thử từ khóa khác hoặc thêm loại kỳ thi mới.",
+  },
+  gradeComponent: {
+    title: "Thành phần điểm",
+    crumb: "Thành phần điểm",
+    titleIcon: "fa-solid fa-percent",
+    listTitle: "Danh sách thành phần điểm",
+    codeLabel: "Mã thành phần",
+    nameLabel: "Tên thành phần",
+    sort: "id",
+    emptyHint: "Thử từ khóa khác hoặc thêm thành phần điểm mới.",
+  },
   position: {
     title: "Chức vụ",
     crumb: "Chức vụ",
@@ -199,6 +241,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
     description: "",
     positionCategory: "",
     credits: "",
+    weightPercent: "",
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -262,6 +305,12 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
       } else if (kind === "department") {
         const pageData = await fetchDepartmentPage(page, 10, m.sort, qParam || undefined);
         setLoaded({ kind: "department", page: pageData });
+      } else if (kind === "examType") {
+        const pageData = await fetchExamTypePage(page, 10, m.sort, qParam || undefined);
+        setLoaded({ kind: "examType", page: pageData });
+      } else if (kind === "gradeComponent") {
+        const pageData = await fetchGradeComponentPage(page, 10, m.sort, qParam || undefined);
+        setLoaded({ kind: "gradeComponent", page: pageData });
       } else if (kind === "course") {
         const pageData = await fetchCoursePage(page, 10, m.sort, qParam || undefined);
         setLoaded({ kind: "course", page: pageData });
@@ -321,7 +370,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
   }
 
   function emptyForm(): FormState {
-    return { code: "", name: "", description: "", positionCategory: "", credits: "" };
+    return { code: "", name: "", description: "", positionCategory: "", credits: "", weightPercent: "" };
   }
 
   function openCreate() {
@@ -347,6 +396,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         description: r.description ?? "",
         positionCategory: "",
         credits: "",
+        weightPercent: "",
       });
     } else if (kind === "faculty") {
       const r = row as Faculty;
@@ -356,6 +406,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         description: r.description ?? "",
         positionCategory: "",
         credits: "",
+        weightPercent: "",
       });
     } else if (kind === "building") {
       const r = row as Building;
@@ -365,6 +416,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         description: r.description ?? "",
         positionCategory: "",
         credits: "",
+        weightPercent: "",
       });
     } else if (kind === "department") {
       const r = row as Department;
@@ -374,6 +426,27 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         description: r.description ?? "",
         positionCategory: "",
         credits: "",
+        weightPercent: "",
+      });
+    } else if (kind === "gradeComponent") {
+      const r = row as GradeComponent;
+      setForm({
+        code: r.componentCode,
+        name: r.componentName,
+        description: r.description ?? "",
+        positionCategory: "",
+        credits: "",
+        weightPercent: String(r.weightPercent ?? ""),
+      });
+    } else if (kind === "examType") {
+      const r = row as ExamType;
+      setForm({
+        code: r.examTypeCode,
+        name: r.examTypeName,
+        description: r.description ?? "",
+        positionCategory: "",
+        credits: "",
+        weightPercent: "",
       });
     } else if (kind === "course") {
       const r = row as Course;
@@ -383,6 +456,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         description: r.description ?? "",
         positionCategory: "",
         credits: String(r.credits),
+        weightPercent: "",
       });
     } else {
       const r = row as Position;
@@ -392,6 +466,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         description: r.description ?? "",
         positionCategory: r.positionCategory ?? "",
         credits: "",
+        weightPercent: "",
       });
     }
     setEditingId(id);
@@ -486,6 +561,37 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         };
         if (editingId == null) await createDepartment(payload);
         else await updateDepartment(editingId, payload);
+      } else if (kind === "gradeComponent") {
+        const weightRaw = form.weightPercent.trim();
+        let weightPercent: number | undefined;
+        if (weightRaw.length > 0) {
+          const weightNum = Number(weightRaw);
+          if (!Number.isFinite(weightNum) || !Number.isInteger(weightNum)) {
+            setFieldErrors({ weightPercent: "Nhập số nguyên từ 0 đến 100." });
+            return;
+          }
+          if (weightNum < 0 || weightNum > 100) {
+            setFieldErrors({ weightPercent: "Tỷ trọng phải nằm trong khoảng 0–100%." });
+            return;
+          }
+          weightPercent = weightNum;
+        }
+        const payload: GradeComponentPayload = {
+          componentCode: form.code.trim(),
+          componentName: form.name.trim(),
+          description: desc,
+          weightPercent,
+        };
+        if (editingId == null) await createGradeComponent(payload);
+        else await updateGradeComponent(editingId, payload);
+      } else if (kind === "examType") {
+        const payload: ExamTypePayload = {
+          examTypeCode: form.code.trim(),
+          examTypeName: form.name.trim(),
+          description: desc,
+        };
+        if (editingId == null) await createExamType(payload);
+        else await updateExamType(editingId, payload);
       } else if (kind === "course") {
         const creditsNum = Number(form.credits.trim());
         if (!Number.isFinite(creditsNum) || !Number.isInteger(creditsNum) || creditsNum < 1) {
@@ -533,6 +639,8 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
       else if (kind === "faculty") await deleteFaculty(id);
       else if (kind === "building") await deleteBuilding(id);
       else if (kind === "department") await deleteDepartment(id);
+      else if (kind === "examType") await deleteExamType(id);
+      else if (kind === "gradeComponent") await deleteGradeComponent(id);
       else if (kind === "course") await deleteCourse(id);
       else await deletePosition(id);
       await load();
@@ -541,7 +649,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
     }
   }
 
-  function rowCells(row: AcademicRank | Faculty | Building | Course | Department | Position) {
+  function rowCells(row: AcademicRank | Faculty | Building | Course | Department | ExamType | GradeComponent | Position) {
     if (kind === "academicRank") {
       const r = row as AcademicRank;
       return {
@@ -592,6 +700,26 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         credits: null as number | null,
       };
     }
+    if (kind === "examType") {
+      const r = row as ExamType;
+      return {
+        code: r.examTypeCode,
+        name: r.examTypeName,
+        desc: r.description,
+        category: null as string | null,
+        credits: null as number | null,
+      };
+    }
+    if (kind === "gradeComponent") {
+      const r = row as GradeComponent;
+      return {
+        code: r.componentCode,
+        name: r.componentName,
+        desc: r.description,
+        category: null as string | null,
+        credits: r.weightPercent,
+      };
+    }
     const r = row as Position;
     return {
       code: r.positionCode,
@@ -603,7 +731,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
   }
 
   const data = loaded && loaded.kind === kind ? loaded.page : null;
-  const tableColCount = kind === "position" || kind === "course" ? 5 : 4;
+  const tableColCount = kind === "position" || kind === "course" || kind === "gradeComponent" ? 5 : 4;
   const hasActiveFilters = Boolean(qParam) || (kind === "position" && Boolean(positionCategoryParam));
 
   return (
@@ -788,6 +916,9 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
                     {kind === "course" && (
                       <th className="border-b border-[#e3e8ec] px-4 py-3 font-semibold">Tín chỉ</th>
                     )}
+                    {kind === "gradeComponent" && (
+                      <th className="border-b border-[#e3e8ec] px-4 py-3 font-semibold">Tỷ trọng (%)</th>
+                    )}
                     <th className="border-b border-[#e3e8ec] px-4 py-3 font-semibold">Mô tả</th>
                     <th className="border-b border-[#e3e8ec] px-4 py-3 text-right font-semibold">
                       Thao tác
@@ -826,6 +957,11 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
                         )}
                         {kind === "course" && (
                           <td className="px-4 py-3 tabular-nums text-[#495057]">{credits ?? "—"}</td>
+                        )}
+                        {kind === "gradeComponent" && (
+                          <td className="px-4 py-3 tabular-nums text-[#495057]">
+                            {credits != null ? `${credits}%` : "—"}
+                          </td>
                         )}
                         <td className="max-w-xs truncate px-4 py-3 text-[#6c757d]">
                           {desc || "—"}
@@ -929,6 +1065,8 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
                   fieldErrors.buildingCode ||
                   fieldErrors.courseCode ||
                   fieldErrors.departmentCode ||
+                  fieldErrors.examTypeCode ||
+                  fieldErrors.componentCode ||
                   fieldErrors.positionCode
                 }
                 input={
@@ -952,6 +1090,8 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
                   fieldErrors.buildingName ||
                   fieldErrors.courseName ||
                   fieldErrors.departmentName ||
+                  fieldErrors.examTypeName ||
+                  fieldErrors.componentName ||
                   fieldErrors.positionName
                 }
                 input={
@@ -976,6 +1116,23 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
                       className="lte-input w-full"
                       value={form.credits}
                       onChange={(e) => setForm((f) => ({ ...f, credits: e.target.value }))}
+                    />
+                  }
+                />
+              )}
+              {kind === "gradeComponent" && (
+                <Field
+                  label="Tỷ trọng (%)"
+                  error={fieldErrors.weightPercent}
+                  input={
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      className="lte-input w-full"
+                      value={form.weightPercent}
+                      onChange={(e) => setForm((f) => ({ ...f, weightPercent: e.target.value }))}
+                      placeholder="Để trống nếu chưa cài đặt"
                     />
                   }
                 />

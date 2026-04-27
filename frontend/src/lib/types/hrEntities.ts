@@ -78,6 +78,38 @@ export type CoursePayload = {
   description?: string | null;
 };
 
+export interface ExamType {
+  id: number;
+  examTypeCode: string;
+  examTypeName: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ExamTypePayload = {
+  examTypeCode: string;
+  examTypeName: string;
+  description?: string | null;
+};
+
+export interface GradeComponent {
+  id: number;
+  componentCode: string;
+  componentName: string;
+  description: string | null;
+  weightPercent: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type GradeComponentPayload = {
+  componentCode: string;
+  componentName: string;
+  description?: string | null;
+  weightPercent?: number | null;
+};
+
 export interface Position {
   id: number;
   positionCode: string;

@@ -68,10 +68,40 @@ export const ADMIN_SIDEBAR_NAV: NavItemWithPermission[] = [
     permissionCode: "admin:courses",
   },
   {
+    href: "/admin/grade-components",
+    label: "Thành phần điểm",
+    icon: "fa-solid fa-percent",
+    permissionCode: "admin:grade_components",
+  },
+  {
+    href: "/admin/exam-types",
+    label: "Loại kỳ thi",
+    icon: "fa-solid fa-file-signature",
+    permissionCode: "admin:exam_types",
+  },
+  {
+    href: "/admin/grade-scales",
+    label: "Thang điểm chữ",
+    icon: "fa-solid fa-ranking-star",
+    permissionCode: "admin:grade_scales",
+  },
+  {
     href: "/admin/course-classes",
     label: "Lớp học phần",
     icon: "fa-solid fa-user-group",
     permissionCode: "admin:course_classes",
+  },
+  {
+    href: "/admin/student-grades",
+    label: "Chấm điểm sinh viên",
+    icon: "fa-solid fa-square-poll-vertical",
+    permissionCode: "admin:student_grades",
+  },
+  {
+    href: "/admin/exams",
+    label: "Lịch thi",
+    icon: "fa-solid fa-calendar-check",
+    permissionCode: "admin:exams",
   },
   {
     href: "/admin/class-schedules",
