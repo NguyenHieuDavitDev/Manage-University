@@ -10,6 +10,7 @@ import java.util.UUID;
 public interface StudentGradeService {
 
     StudentGradebookResponse getGradebook(Long courseClassId);
+    StudentGradebookResponse getGradebookForStudent(Long courseClassId, UUID userId);
 
     StudentGradebookResponse upsertStudentScores(Long courseClassId, UUID userId, StudentGradeUpsertRequest request);
 

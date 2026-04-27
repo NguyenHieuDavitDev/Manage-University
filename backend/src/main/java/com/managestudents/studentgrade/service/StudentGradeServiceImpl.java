@@ -73,6 +73,17 @@ public class StudentGradeServiceImpl implements StudentGradeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public StudentGradebookResponse getGradebookForStudent(Long courseClassId, UUID userId) {
+        CourseClass cc = courseClassRepository.findById(courseClassId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lớp học phần"));
+        List<GradeComponent> components = gradeComponentRepository.findAllByOrderByIdAsc();
+        CourseClassEnrollment enrollment = enrollmentRepository.findByCourseClass_IdAndUser_Id(courseClassId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sinh viên chưa đăng ký lớp học phần này"));
+        return buildGradebook(cc, components, List.of(enrollment));
+    }
+
+    @Override
     @Transactional
     public StudentGradebookResponse upsertStudentScores(Long courseClassId, UUID userId, StudentGradeUpsertRequest request) {
         CourseClass cc = courseClassRepository.findById(courseClassId)

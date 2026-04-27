@@ -34,7 +34,11 @@ public class StudentGradeController {
 
     @GetMapping("/api/v1/course-classes/{courseClassId}/gradebook")
     public ResponseEntity<StudentGradebookResponse> getGradebook(@PathVariable Long courseClassId) {
-        requirePrincipal();
+        JwtPrincipal p = requirePrincipal();
+        boolean isStudent = p.roleCodes() != null && p.roleCodes().stream().anyMatch("STUDENT"::equalsIgnoreCase);
+        if (isStudent) {
+            return ResponseEntity.ok(studentGradeService.getGradebookForStudent(courseClassId, p.userId()));
+        }
         return ResponseEntity.ok(studentGradeService.getGradebook(courseClassId));
     }
 

@@ -1,10 +1,10 @@
 "use client";
 
-import { getAccessToken } from "@/lib/auth-storage";
+import { clearAccessToken, getAccessToken } from "@/lib/auth-storage";
 import { getJwtRoles, isJwtExpired } from "@/lib/jwt";
 import { canAccessAdminPortal } from "@/lib/portalRouting";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   mode: "admin" | "user";
@@ -12,24 +12,35 @@ type Props = {
 };
 
 export function AuthGate({ mode, children }: Props) {
-  const router = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
+  // Track if we already redirected to avoid double replace calls
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
+    if (redirectingRef.current) return;
+
     const token = getAccessToken();
     const nextPath = pathname || (mode === "admin" ? "/admin" : "/user");
+
     if (!token || isJwtExpired(token)) {
-      router.replace(`/login?next=${encodeURIComponent(nextPath)}`);
+      clearAccessToken();
+      setReady(false);
+      redirectingRef.current = true;
+      window.location.replace(`/login?next=${encodeURIComponent(nextPath)}`);
       return;
     }
+
     const roles = getJwtRoles(token);
     if (mode === "admin" && !canAccessAdminPortal(roles)) {
-      router.replace("/user");
+      setReady(false);
+      redirectingRef.current = true;
+      window.location.replace("/user");
       return;
     }
+
     setReady(true);
-  }, [mode, pathname, router]);
+  }, [mode, pathname]);
 
   if (!ready) {
     return (

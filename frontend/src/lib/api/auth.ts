@@ -50,14 +50,17 @@ export async function registerRequest(body: {
   return res.json();
 }
 
-export async function fetchMe(): Promise<AuthMeResponse> {
-  const res = await apiFetch(`${authBase()}/me`, { cache: "no-store" });
+export async function fetchMe(init?: RequestInit): Promise<AuthMeResponse> {
+  const res = await apiFetch(`${authBase()}/me`, { cache: "no-store", ...init });
   if (res.status === 401) {
-    throw new Error("Phiên đăng nhập hết hạn");
+    throw Object.assign(new Error("Phiên đăng nhập hết hạn"), { status: 401 });
   }
   if (!res.ok) {
     const err = (await res.json().catch(() => null)) as ApiErrorBody | null;
-    throw new Error(err?.message || "Không tải được thông tin tài khoản");
+    throw Object.assign(new Error(err?.message || "Không tải được thông tin tài khoản"), {
+      status: res.status,
+      apiError: err,
+    });
   }
   return res.json();
 }

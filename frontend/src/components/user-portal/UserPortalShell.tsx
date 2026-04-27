@@ -25,20 +25,36 @@ export function UserPortalShell({ children }: Props) {
   const [me, setMe] = useState<AuthMeResponse | null>(initialMe);
 
   useEffect(() => {
-    let cancelled = false;
+    const ac = new AbortController();
     void (async () => {
       try {
-        const m = await fetchMe();
-        if (!cancelled) {
-          setMe(m);
-          writeAuthMeSnapshot(m);
+        const m = await fetchMe({ signal: ac.signal });
+        if (ac.signal.aborted) return;
+        setMe(m);
+        writeAuthMeSnapshot(m);
+      } catch (err) {
+        if (ac.signal.aborted) return;
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        if (err instanceof Error && err.name === "AbortError") return;
+        const status = typeof err === "object" && err != null && "status" in err ? (err as { status?: number }).status : undefined;
+        const msg = err instanceof Error ? err.message : "";
+        if (status === 401 || msg.includes("hết hạn")) {
+          clearAccessToken();
+          setMe(null);
+          const returnTo =
+            typeof window !== "undefined" &&
+            window.location.pathname &&
+            window.location.pathname !== "/login"
+              ? window.location.pathname
+              : "/user";
+          window.location.replace(`/login?next=${encodeURIComponent(returnTo)}`);
+          return;
         }
-      } catch {
-        if (!cancelled) setMe(null);
+        setMe(readAuthMeSnapshot());
       }
     })();
     return () => {
-      cancelled = true;
+      ac.abort();
     };
   }, []);
 

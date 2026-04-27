@@ -4,12 +4,12 @@ import { FaIcon } from "@/components/FaIcon";
 import { loginRequest } from "@/lib/api/auth";
 import { writeAuthMeSnapshotFromAuthResponse } from "@/lib/auth-me-snapshot";
 import { setAccessToken } from "@/lib/auth-storage";
+import { canAccessAdminPortal } from "@/lib/portalRouting";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPageClient() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,12 +25,17 @@ export default function LoginPageClient() {
       setAccessToken(res.accessToken);
       writeAuthMeSnapshotFromAuthResponse(res);
       const next = searchParams.get("next");
-      if (next && next.startsWith("/")) {
-        router.replace(next);
-      } else {
-        router.replace(res.defaultRoute || "/user");
+      const requestedPath =
+        next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+      const canGoAdmin = canAccessAdminPortal(res.roles ?? []);
+      let target = res.defaultRoute || "/user";
+      if (requestedPath?.startsWith("/admin") && !canGoAdmin) {
+        target = "/user";
+      } else if (requestedPath) {
+        target = requestedPath;
       }
-      router.refresh();
+      // Điều hướng full trang: tránh race router.replace với localStorage / AuthGate sau khi đăng nhập.
+      window.location.replace(target);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Đăng nhập thất bại");
     } finally {

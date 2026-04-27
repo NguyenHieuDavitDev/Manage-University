@@ -32,29 +32,23 @@ public final class PortalRouting {
                 .collect(Collectors.toSet());
     }
 
-    /** Trang mặc định sau đăng nhập: ADMIN → admin, USER → user, role khác → admin. */
+    /** Trang mặc định sau đăng nhập: ADMIN/TEACHER → admin, còn lại → user. */
     public static String defaultRoute(Collection<String> roleCodes) {
         Set<String> up = normalizedRoleCodes(roleCodes);
-        if (up.contains("ADMIN")) {
+        if (up.contains("ADMIN") || up.contains("TEACHER")) {
             return "/admin";
         }
-        if (up.contains("USER")) {
-            return "/user";
-        }
-        return "/admin";
+        return "/user";
     }
 
     /**
-     * Chỉ tài khoản <strong>duy nhất</strong> vai trò USER (không có ADMIN / role khác) thì không mở cổng quản trị.
+     * Chỉ ADMIN hoặc TEACHER được vào cổng quản trị.
      */
     public static boolean canAccessAdminPortal(Collection<String> roleCodes) {
         Set<String> up = normalizedRoleCodes(roleCodes);
         if (up.isEmpty()) {
             return false;
         }
-        if (up.contains("ADMIN")) {
-            return true;
-        }
-        return !(up.size() == 1 && up.contains("USER"));
+        return up.contains("ADMIN") || up.contains("TEACHER");
     }
 }

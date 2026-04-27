@@ -5,11 +5,9 @@ import { registerRequest } from "@/lib/api/auth";
 import { writeAuthMeSnapshotFromAuthResponse } from "@/lib/auth-me-snapshot";
 import { setAccessToken } from "@/lib/auth-storage";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function RegisterPageClient() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,8 +30,7 @@ export default function RegisterPageClient() {
       });
       setAccessToken(res.accessToken);
       writeAuthMeSnapshotFromAuthResponse(res);
-      router.replace(res.defaultRoute || "/user");
-      router.refresh();
+      window.location.replace(res.defaultRoute || "/user");
     } catch (err) {
       const er = err as Error & { apiError?: { details?: Record<string, string>; message?: string } };
       if (er.apiError?.details) setFieldErrors(er.apiError.details);

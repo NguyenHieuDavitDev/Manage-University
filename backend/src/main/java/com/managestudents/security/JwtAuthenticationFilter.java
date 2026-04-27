@@ -92,7 +92,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
         if (uri.startsWith("/api/v1/auth/")) {
-            return true;
+            // /me cần JWT để đọc principal — chỉ login/register mới thực sự public
+            return !uri.equals("/api/v1/auth/me");
         }
         if (uri.startsWith("/api/v1/files/avatars")) {
             return "GET".equalsIgnoreCase(method) || "POST".equalsIgnoreCase(method);

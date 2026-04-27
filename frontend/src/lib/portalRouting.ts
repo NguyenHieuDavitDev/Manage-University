@@ -14,15 +14,13 @@ export function normalizedRoleCodes(roleCodes: string[]): Set<string> {
 
 export function defaultRouteFromRoles(roleCodes: string[]): string {
   const up = normalizedRoleCodes(roleCodes);
-  if (up.has("ADMIN")) return "/admin";
-  if (up.has("USER")) return "/user";
-  return "/admin";
+  if (up.has("ADMIN") || up.has("TEACHER")) return "/admin";
+  return "/user";
 }
 
-/** Chỉ USER (không ADMIN / role khác) không được vào cổng quản trị. */
+/** Chỉ ADMIN hoặc TEACHER được vào cổng quản trị. */
 export function canAccessAdminPortal(roleCodes: string[]): boolean {
   const up = normalizedRoleCodes(roleCodes);
   if (up.size === 0) return false;
-  if (up.has("ADMIN")) return true;
-  return !(up.size === 1 && up.has("USER"));
+  return up.has("ADMIN") || up.has("TEACHER");
 }

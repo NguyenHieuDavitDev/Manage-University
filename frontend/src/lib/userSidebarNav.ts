@@ -9,6 +9,21 @@ export const USER_SIDEBAR_NAV: NavItemWithPermission[] = [
     icon: "fa-solid fa-book-open",
   },
   {
+    href: "/user/study-schedule",
+    label: "Lịch học",
+    icon: "fa-solid fa-calendar-days",
+  },
+  {
+    href: "/user/exam-schedule",
+    label: "Lịch thi",
+    icon: "fa-solid fa-calendar-check",
+  },
+  {
+    href: "/user/scores",
+    label: "Điểm số",
+    icon: "fa-solid fa-square-poll-vertical",
+  },
+  {
     href: "/user/roles",
     label: "Vai trò",
     icon: "fa-solid fa-shield-halved",
