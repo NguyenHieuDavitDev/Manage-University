@@ -32,8 +32,11 @@ public final class SidebarMenuCatalog {
                     List.of(
                             new MenuItem("admin:academic_ranks", "Học hàm / học vị"),
                             new MenuItem("admin:faculties", "Khoa / đơn vị"),
+                            new MenuItem("admin:buildings", "Quản lý tòa nhà"),
+                            new MenuItem("admin:classrooms", "Quản lý phòng học"),
                             new MenuItem("admin:courses", "Học phần"),
                             new MenuItem("admin:course_classes", "Lớp học phần"),
+                            new MenuItem("admin:class_schedules", "Quản lý lịch học"),
                             new MenuItem("admin:departments", "Phòng ban"),
                             new MenuItem("admin:positions", "Chức vụ"))),
             new MenuGroup(

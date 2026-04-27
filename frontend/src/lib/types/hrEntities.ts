@@ -32,6 +32,20 @@ export type FacultyPayload = {
   description?: string | null;
 };
 
+export interface Building {
+  id: number;
+  buildingCode: string;
+  buildingName: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type BuildingPayload = {
+  buildingName: string;
+  description?: string | null;
+};
+
 export interface Department {
   id: number;
   departmentCode: string;

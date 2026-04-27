@@ -60,15 +60,15 @@ function MessageContent({ content }: { content: string }) {
 
 function TypingIndicator() {
   return (
-    <div className="flex items-end gap-2 mr-auto max-w-[85%]">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 text-xs">
+    <div className="mr-auto flex max-w-[85%] items-end gap-2">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-violet-100 text-xs font-semibold text-indigo-700 shadow-sm ring-1 ring-indigo-100">
         AI
       </div>
-      <div className="rounded-2xl rounded-bl-md border border-slate-200 bg-white px-4 py-3">
-        <div className="flex gap-1 items-center h-4">
-          <span className="h-2 w-2 rounded-full bg-slate-400 animate-bounce [animation-delay:0ms]" />
-          <span className="h-2 w-2 rounded-full bg-slate-400 animate-bounce [animation-delay:150ms]" />
-          <span className="h-2 w-2 rounded-full bg-slate-400 animate-bounce [animation-delay:300ms]" />
+      <div className="rounded-2xl rounded-bl-sm border border-slate-200/80 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
+        <div className="flex h-4 items-center gap-1">
+          <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:0ms]" />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />
         </div>
       </div>
     </div>
@@ -376,7 +376,7 @@ export function UserMajorAdvisorChatClient() {
           {currentSessionId && (
             <div className="flex flex-1 flex-col gap-4">
               {/* Khu vực messages */}
-              <div className="flex-1 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50/40 p-4 space-y-4 min-h-[400px] max-h-[520px]">
+              <div className="min-h-[400px] max-h-[520px] flex-1 space-y-4 overflow-y-auto rounded-2xl border border-slate-200/70 bg-gradient-to-b from-slate-50 to-white p-4">
                 {loadingMessages && (
                   <div className="flex items-center gap-2 text-sm text-slate-400">
                     <FaIcon icon="fa-solid fa-spinner" className="animate-spin" />
@@ -412,14 +412,14 @@ export function UserMajorAdvisorChatClient() {
                 {messages.map((m) => (
                   <div
                     key={m.messageId}
-                    className={`flex items-end gap-2 ${m.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                    className={`group flex items-end gap-2 ${m.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                   >
                     {/* Avatar */}
                     <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold shadow-sm ring-1 ${
                         m.role === "user"
-                          ? "bg-indigo-600 text-white"
-                          : "bg-indigo-100 text-indigo-600"
+                          ? "bg-gradient-to-br from-indigo-600 to-violet-600 text-white ring-indigo-200"
+                          : "bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-700 ring-indigo-100"
                       }`}
                     >
                       {m.role === "user" ? "Bạn" : "AI"}
@@ -427,16 +427,26 @@ export function UserMajorAdvisorChatClient() {
 
                     {/* Bubble */}
                     <div
-                      className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
+                      className={`relative max-w-[78%] rounded-2xl px-4 py-3 text-sm shadow-sm transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md ${
                         m.role === "user"
-                          ? "rounded-br-md bg-indigo-600 text-white"
-                          : "rounded-bl-md border border-slate-200 bg-white text-slate-800"
+                          ? "rounded-br-sm bg-gradient-to-br from-indigo-600 to-violet-600 text-white"
+                          : "rounded-bl-sm border border-slate-200/80 bg-white/95 text-slate-800 backdrop-blur"
                       }`}
                     >
+                      <span
+                        aria-hidden
+                        className={`absolute bottom-2 h-3 w-3 rotate-45 ${
+                          m.role === "user"
+                            ? "-right-1 bg-violet-600"
+                            : "-left-1 border-b border-r border-slate-200/80 bg-white"
+                        }`}
+                      />
                       <MessageContent content={m.content} />
                       <p
-                        className={`mt-2 text-[10px] text-right ${
-                          m.role === "user" ? "text-indigo-200" : "text-slate-400"
+                        className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[10px] ${
+                          m.role === "user"
+                            ? "bg-white/15 text-indigo-100"
+                            : "bg-slate-100 text-slate-500"
                         }`}
                       >
                         {fmtTime(m.createdAt)}

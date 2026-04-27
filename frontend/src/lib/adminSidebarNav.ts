@@ -50,6 +50,18 @@ export const ADMIN_SIDEBAR_NAV: NavItemWithPermission[] = [
     permissionCode: "admin:faculties",
   },
   {
+    href: "/admin/buildings",
+    label: "Quản lý tòa nhà",
+    icon: "fa-solid fa-building",
+    permissionCode: "admin:buildings",
+  },
+  {
+    href: "/admin/classrooms",
+    label: "Quản lý phòng học",
+    icon: "fa-solid fa-door-open",
+    permissionCode: "admin:classrooms",
+  },
+  {
     href: "/admin/courses",
     label: "Học phần",
     icon: "fa-solid fa-book",
@@ -60,6 +72,12 @@ export const ADMIN_SIDEBAR_NAV: NavItemWithPermission[] = [
     label: "Lớp học phần",
     icon: "fa-solid fa-user-group",
     permissionCode: "admin:course_classes",
+  },
+  {
+    href: "/admin/class-schedules",
+    label: "Quản lý lịch học",
+    icon: "fa-solid fa-calendar-days",
+    permissionCode: "admin:class_schedules",
   },
   {
     href: "/admin/departments",

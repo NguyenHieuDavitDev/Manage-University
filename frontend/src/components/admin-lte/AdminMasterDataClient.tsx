@@ -8,6 +8,12 @@ import {
   updateAcademicRank,
 } from "@/lib/api/academicRanks";
 import {
+  createBuilding,
+  deleteBuilding,
+  fetchBuildingPage,
+  updateBuilding,
+} from "@/lib/api/buildings";
+import {
   createCourse,
   deleteCourse,
   fetchCoursePage,
@@ -31,6 +37,8 @@ import type { ApiErrorBody } from "@/lib/types/common";
 import type {
   AcademicRank,
   AcademicRankPayload,
+  Building,
+  BuildingPayload,
   Course,
   CoursePayload,
   Department,
@@ -46,7 +54,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ContentHeader } from "./ContentHeader";
 import { LteCard } from "./Card";
 
-export type MasterDataKind = "academicRank" | "faculty" | "course" | "department" | "position";
+export type MasterDataKind =
+  | "academicRank"
+  | "faculty"
+  | "building"
+  | "course"
+  | "department"
+  | "position";
 
 type FormState = {
   code: string;
@@ -83,6 +97,7 @@ function mergePositionCategoryOptions(fromApi: string[]): string[] {
 type LoadedState =
   | { kind: "academicRank"; page: SpringPage<AcademicRank> }
   | { kind: "faculty"; page: SpringPage<Faculty> }
+  | { kind: "building"; page: SpringPage<Building> }
   | { kind: "course"; page: SpringPage<Course> }
   | { kind: "department"; page: SpringPage<Department> }
   | { kind: "position"; page: SpringPage<Position> };
@@ -119,6 +134,16 @@ const META: Record<
     nameLabel: "Tên khoa",
     sort: "id",
     emptyHint: "Thử từ khóa khác hoặc thêm khoa mới.",
+  },
+  building: {
+    title: "Quản lý tòa nhà",
+    crumb: "Tòa nhà",
+    titleIcon: "fa-solid fa-building",
+    listTitle: "Danh sách tòa nhà",
+    codeLabel: "Mã tòa nhà",
+    nameLabel: "Tên tòa nhà",
+    sort: "id",
+    emptyHint: "Thử từ khóa khác hoặc thêm tòa nhà mới.",
   },
   course: {
     title: "Học phần",
@@ -231,6 +256,9 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
       } else if (kind === "faculty") {
         const pageData = await fetchFacultyPage(page, 10, m.sort, qParam || undefined);
         setLoaded({ kind: "faculty", page: pageData });
+      } else if (kind === "building") {
+        const pageData = await fetchBuildingPage(page, 10, m.sort, qParam || undefined);
+        setLoaded({ kind: "building", page: pageData });
       } else if (kind === "department") {
         const pageData = await fetchDepartmentPage(page, 10, m.sort, qParam || undefined);
         setLoaded({ kind: "department", page: pageData });
@@ -325,6 +353,15 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
       setForm({
         code: r.facultyCode,
         name: r.facultyName,
+        description: r.description ?? "",
+        positionCategory: "",
+        credits: "",
+      });
+    } else if (kind === "building") {
+      const r = row as Building;
+      setForm({
+        code: r.buildingCode,
+        name: r.buildingName,
         description: r.description ?? "",
         positionCategory: "",
         credits: "",
@@ -434,6 +471,13 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
         };
         if (editingId == null) await createFaculty(payload);
         else await updateFaculty(editingId, payload);
+      } else if (kind === "building") {
+        const payload: BuildingPayload = {
+          buildingName: form.name.trim(),
+          description: desc,
+        };
+        if (editingId == null) await createBuilding(payload);
+        else await updateBuilding(editingId, payload);
       } else if (kind === "department") {
         const payload: DepartmentPayload = {
           departmentCode: form.code.trim(),
@@ -487,6 +531,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
     try {
       if (kind === "academicRank") await deleteAcademicRank(id);
       else if (kind === "faculty") await deleteFaculty(id);
+      else if (kind === "building") await deleteBuilding(id);
       else if (kind === "department") await deleteDepartment(id);
       else if (kind === "course") await deleteCourse(id);
       else await deletePosition(id);
@@ -496,7 +541,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
     }
   }
 
-  function rowCells(row: AcademicRank | Faculty | Course | Department | Position) {
+  function rowCells(row: AcademicRank | Faculty | Building | Course | Department | Position) {
     if (kind === "academicRank") {
       const r = row as AcademicRank;
       return {
@@ -512,6 +557,16 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
       return {
         code: r.facultyCode,
         name: r.facultyName,
+        desc: r.description,
+        category: null as string | null,
+        credits: null as number | null,
+      };
+    }
+    if (kind === "building") {
+      const r = row as Building;
+      return {
+        code: r.buildingCode,
+        name: r.buildingName,
         desc: r.description,
         category: null as string | null,
         credits: null as number | null,
@@ -871,15 +926,20 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
                 error={
                   fieldErrors.rankCode ||
                   fieldErrors.facultyCode ||
+                  fieldErrors.buildingCode ||
                   fieldErrors.courseCode ||
                   fieldErrors.departmentCode ||
                   fieldErrors.positionCode
                 }
                 input={
                   <input
-                    required
+                    required={kind !== "building"}
                     className="lte-input w-full"
-                    value={form.code}
+                    value={
+                      kind === "building" && editingId == null ? "Tự động: TN001, TN002, ..." : form.code
+                    }
+                    readOnly={kind === "building"}
+                    disabled={kind === "building"}
                     onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
                   />
                 }
@@ -889,6 +949,7 @@ export default function AdminMasterDataClient({ kind }: { kind: MasterDataKind }
                 error={
                   fieldErrors.rankName ||
                   fieldErrors.facultyName ||
+                  fieldErrors.buildingName ||
                   fieldErrors.courseName ||
                   fieldErrors.departmentName ||
                   fieldErrors.positionName
