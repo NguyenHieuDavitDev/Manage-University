@@ -121,9 +121,6 @@ public class ClassScheduleServiceImpl implements ClassScheduleService {
 
         Shift targetShift = shiftByCode(request.getShiftCode());
         LocalDate targetDate = request.getTargetDate();
-        if (targetDate.isBefore(moving.getStartDate()) || targetDate.isAfter(moving.getEndDate())) {
-            throw new IllegalArgumentException("Chỉ được đổi lịch trong khoảng ngày của lịch học hiện tại");
-        }
         int sourceDayIndex = moving.getDayOfWeek() == 8 ? 6 : moving.getDayOfWeek() - 2;
         int targetDayIndex = request.getDayOfWeek() == 8 ? 6 : request.getDayOfWeek() - 2;
         LocalDate sourceDate = targetDate.plusDays(sourceDayIndex - targetDayIndex);

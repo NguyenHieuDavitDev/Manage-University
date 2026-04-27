@@ -175,7 +175,7 @@ function computeEndDateFromStart(startDateIso: string, weeks: number): string {
   const d = new Date(`${startDateIso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return "";
   d.setDate(d.getDate() + (weeks - 1) * 7);
-  return d.toISOString().slice(0, 10);
+  return toLocalDateIso(d);
 }
 
 export default function AdminClassSchedulesClient() {
@@ -493,7 +493,7 @@ export default function AdminClassSchedulesClient() {
     return rows.filter((s) => {
       const weekDayDate = weekDates[s.dayOfWeek === 8 ? 6 : s.dayOfWeek - 2];
       if (!weekDayDate) return false;
-      const x = weekDayDate.toISOString().slice(0, 10);
+      const x = toLocalDateIso(weekDayDate);
       return x >= s.startDate && x <= s.endDate;
     });
   }, [calendarRows, weekDates]);
@@ -521,7 +521,7 @@ export default function AdminClassSchedulesClient() {
           </button>
         }
       >
-        <div className="mb-4 grid grid-cols-1 gap-3 rounded-xl border border-[#e3e8ec] bg-white p-4 shadow-sm md:grid-cols-2">
+        <div className="mb-4 grid grid-cols-1 gap-3 rounded-2xl border border-[#e3e8ec] bg-gradient-to-br from-white to-[#f8fbff] p-4 shadow-sm md:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#6c757d]">
               Lọc theo lớp học phần
@@ -577,7 +577,7 @@ export default function AdminClassSchedulesClient() {
             e.preventDefault();
             pushQuery(0, draft);
           }}
-          className="mb-4 flex flex-col gap-2 sm:flex-row"
+          className="mb-4 flex flex-col gap-2 rounded-xl border border-[#e8edf2] bg-white/70 p-3 sm:flex-row"
         >
           <input
             className="lte-input flex-1"
@@ -587,17 +587,19 @@ export default function AdminClassSchedulesClient() {
           />
           <div className="flex gap-2">
             <button type="submit" className="lte-btn lte-btn-primary lte-btn-sm">
+              <FaIcon icon="fa-solid fa-magnifying-glass" />
               Tìm
             </button>
             {hasActiveFilters && (
               <button type="button" className="lte-btn lte-btn-ghost lte-btn-sm" onClick={clearSearch}>
+                <FaIcon icon="fa-solid fa-filter-circle-xmark" />
                 Xóa lọc
               </button>
             )}
           </div>
         </form>
-        {error && <p className="mb-4 text-sm text-red-700">{error}</p>}
-        <div className="mb-5 rounded-xl border border-[#e3e8ec] bg-white p-4 shadow-sm">
+        {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        <div className="mb-5 rounded-2xl border border-[#e3e8ec] bg-white p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h4 className="flex items-center gap-2 text-sm font-semibold text-[#2c3e50]">
               <FaIcon icon="fa-solid fa-calendar-week" />
@@ -649,7 +651,7 @@ export default function AdminClassSchedulesClient() {
 
           {calendarOpen && (
             <>
-              <div className="mb-3 flex gap-2">
+              <div className="mb-3 flex flex-wrap gap-2">
                 <button
                   type="button"
                   className={`lte-btn lte-btn-sm ${calendarMode === "WEEK" ? "lte-btn-primary" : "lte-btn-ghost"}`}
@@ -675,14 +677,14 @@ export default function AdminClassSchedulesClient() {
                   {dragModeEnabled ? "Tắt chế độ đổi lịch" : "Bật chế độ đổi lịch"}
                 </button>
               </div>
-              <p className="mb-3 text-xs text-[#6c757d]">
+              <p className="mb-3 rounded-lg border border-[#e9edf2] bg-[#f8fafc] px-3 py-2 text-xs text-[#5f6b76]">
                 Bấm vào ô trống để thêm lịch nhanh hoặc tăng cường tiết. Khi cần đổi lịch học, bật chế độ đổi lịch và
                 kéo-thả lịch sang ô mới.
               </p>
 
               {calendarMode === "WEEK" && (
                 <div className="space-y-3">
-                  <div className="overflow-x-auto rounded-lg border border-[#e6eaee]">
+                  <div className="overflow-x-auto rounded-xl border border-[#dfe6ec] bg-[#fcfdff]">
                     <table className="min-w-full table-fixed text-xs">
                       <colgroup>
                         <col className="w-28" />
@@ -690,7 +692,7 @@ export default function AdminClassSchedulesClient() {
                       </colgroup>
                       <thead>
                         <tr>
-                          <th className="bg-[#f3e53d] px-2 py-2 text-left font-semibold" />
+                          <th className="bg-[#f7f0b5] px-2 py-2 text-left font-semibold text-[#495057]" />
                           {weekDates.map((_, idx) => {
                             const day = idx === 6 ? 8 : idx + 2;
                             return (
@@ -706,6 +708,7 @@ export default function AdminClassSchedulesClient() {
                                   }}
                                   className="w-full"
                                 >
+                                  <FaIcon icon="fa-solid fa-calendar-day" className="mr-1" />
                                   {dayShortLabel(day)}
                                 </button>
                               </th>
@@ -716,7 +719,7 @@ export default function AdminClassSchedulesClient() {
                       <tbody>
                         {CALENDAR_SHIFT_ROWS.map((shift) => (
                           <tr key={shift.code}>
-                            <td className="w-28 border-r border-b bg-[#f3f6f5] px-2 py-2 font-semibold">
+                            <td className="w-28 border-r border-b bg-[#f4f7fa] px-2 py-2 font-semibold text-[#2f3c48]">
                               <div>{shift.title}</div>
                               <div className="text-[10px] text-[#6c757d]">
                                 T{shift.start}-T{shift.end}
@@ -763,10 +766,10 @@ export default function AdminClassSchedulesClient() {
                                         setQuickCell({ dayOfWeek: day, shiftCode: shift.code, dateIso });
                                       }
                                     }}
-                                    className={`min-h-[76px] max-h-[92px] overflow-y-auto rounded-md border border-dashed p-1 ${
+                                    className={`min-h-[76px] max-h-[92px] overflow-y-auto rounded-lg border border-dashed p-1.5 transition ${
                                       hoverDropCell === cellKey
                                         ? "border-[#10a644] bg-[#e9f8ee]"
-                                        : "border-transparent bg-transparent"
+                                        : "border-[#edf1f4] bg-white"
                                     }`}
                                   >
                                     {items.length === 0 && draggingScheduleId != null && (
@@ -788,7 +791,7 @@ export default function AdminClassSchedulesClient() {
                                           setHoverDropCell(null);
                                         }}
                                         onClick={() => openEdit(s)}
-                                        className="mb-1 block w-full max-w-full overflow-hidden rounded-md border border-[#0e6b4f] bg-white px-1 py-1 text-left last:mb-0"
+                                        className="mb-1 block w-full max-w-full overflow-hidden rounded-lg border border-[#cbe9d9] bg-[#f5fff9] px-1.5 py-1.5 text-left shadow-[0_1px_2px_rgba(16,166,68,0.08)] last:mb-0"
                                       >
                                         <div className="truncate text-[10px] font-semibold text-[#0e6b4f]">
                                           <FaIcon icon="fa-solid fa-door-open" className="mr-1" />
@@ -817,7 +820,7 @@ export default function AdminClassSchedulesClient() {
               )}
 
               {calendarMode === "DAY" && (
-                <div className="rounded-lg border border-[#e6eaee] p-3">
+                <div className="rounded-xl border border-[#dfe6ec] bg-[#fcfdff] p-3">
                   <div className="mb-3 flex flex-wrap gap-2">
                     {weekDates.map((d, idx) => (
                       <button
@@ -843,8 +846,8 @@ export default function AdminClassSchedulesClient() {
                           s.endPeriod === shift.end
                       );
                       return (
-                        <div key={shift.code} className="flex gap-2 rounded-md border border-[#e9ecef] p-2">
-                          <div className="w-28 text-xs font-semibold text-[#2c3e50]">
+                        <div key={shift.code} className="flex gap-2 rounded-lg border border-[#e5ebf0] bg-white p-2.5">
+                          <div className="w-28 rounded-md bg-[#f4f7fa] px-2 py-1 text-xs font-semibold text-[#2c3e50]">
                             <div>{shift.title}</div>
                             <div className="text-[11px] text-[#6c757d]">T{shift.start}-T{shift.end}</div>
                           </div>
@@ -876,7 +879,7 @@ export default function AdminClassSchedulesClient() {
                                   onDragStart={() => setDraggingScheduleId(s.id)}
                                   onDragEnd={() => setDraggingScheduleId(null)}
                                   onClick={() => openEdit(s)}
-                                  className="w-full rounded-md border border-[#d9ecf8] bg-[#f4faff] px-2 py-1 text-left"
+                                  className="w-full rounded-lg border border-[#d9ecf8] bg-[#f4faff] px-2 py-1.5 text-left shadow-[0_1px_2px_rgba(47,116,148,0.08)]"
                                 >
                                   <div className="text-xs font-semibold text-[#2f7494]">
                                     <FaIcon icon="fa-solid fa-book-open" className="mr-1" />
@@ -906,17 +909,17 @@ export default function AdminClassSchedulesClient() {
           </div>
         )}
         {!loading && data && (
-          <div className="lte-table-wrap overflow-x-auto">
+          <div className="lte-table-wrap overflow-x-auto rounded-xl border border-[#e2e8ee]">
             <table className="min-w-full text-sm">
               <thead>
-                <tr>
-                  <th className="border-b px-3 py-2 text-left">Học phần</th>
-                  <th className="border-b px-3 py-2 text-left">Giảng viên</th>
-                  <th className="border-b px-3 py-2 text-left">Phòng</th>
-                  <th className="border-b px-3 py-2 text-left">Thứ</th>
-                  <th className="border-b px-3 py-2 text-left">Thời gian dạy</th>
-                  <th className="border-b px-3 py-2 text-left">Dạy từ ngày</th>
-                  <th className="border-b px-3 py-2 text-right">Thao tác</th>
+                <tr className="bg-[#f7fafc] text-[#4b5a67]">
+                  <th className="border-b px-3 py-2.5 text-left">Học phần</th>
+                  <th className="border-b px-3 py-2.5 text-left">Giảng viên</th>
+                  <th className="border-b px-3 py-2.5 text-left">Phòng</th>
+                  <th className="border-b px-3 py-2.5 text-left">Thứ</th>
+                  <th className="border-b px-3 py-2.5 text-left">Thời gian dạy</th>
+                  <th className="border-b px-3 py-2.5 text-left">Dạy từ ngày</th>
+                  <th className="border-b px-3 py-2.5 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -928,7 +931,7 @@ export default function AdminClassSchedulesClient() {
                   </tr>
                 )}
                 {data.content.map((row) => (
-                  <tr key={row.id} className="border-b last:border-0">
+                  <tr key={row.id} className="border-b border-[#edf1f4] transition hover:bg-[#fafcff] last:border-0">
                     <td className="px-3 py-2">
                       <div className="font-mono text-xs text-[#3c8dbc]">{row.courseCode}</div>
                       <div className="font-medium text-[#2c3e50]">
@@ -955,6 +958,7 @@ export default function AdminClassSchedulesClient() {
                         onClick={() => openEdit(row)}
                         className="lte-btn lte-btn-ghost lte-btn-sm mr-1"
                       >
+                        <FaIcon icon="fa-solid fa-pen-to-square" />
                         Sửa
                       </button>
                       <button
@@ -962,6 +966,7 @@ export default function AdminClassSchedulesClient() {
                         onClick={() => void handleDelete(row)}
                         className="lte-btn lte-btn-danger lte-btn-sm"
                       >
+                        <FaIcon icon="fa-solid fa-trash" />
                         Xóa
                       </button>
                     </td>
@@ -983,6 +988,7 @@ export default function AdminClassSchedulesClient() {
                 onClick={() => setPage(page - 1)}
                 className="lte-btn lte-btn-ghost lte-btn-sm disabled:opacity-40"
               >
+                <FaIcon icon="fa-solid fa-angle-left" />
                 Trước
               </button>
               <button
@@ -991,6 +997,7 @@ export default function AdminClassSchedulesClient() {
                 onClick={() => setPage(page + 1)}
                 className="lte-btn lte-btn-ghost lte-btn-sm disabled:opacity-40"
               >
+                <FaIcon icon="fa-solid fa-angle-right" />
                 Sau
               </button>
             </div>
@@ -1001,7 +1008,10 @@ export default function AdminClassSchedulesClient() {
       {quickCell && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
-            <h4 className="mb-1 text-lg font-semibold text-[#2c3e50]">Thao tác nhanh ô lịch</h4>
+            <h4 className="mb-1 flex items-center gap-2 text-lg font-semibold text-[#2c3e50]">
+              <FaIcon icon="fa-solid fa-wand-magic-sparkles" />
+              Thao tác nhanh ô lịch
+            </h4>
             <p className="mb-4 text-sm text-[#6c757d]">
               {dayLabel(quickCell.dayOfWeek)} -{" "}
               {SHIFT_OPTIONS.find((x) => x.code === quickCell.shiftCode)?.label ?? quickCell.shiftCode} -{" "}
@@ -1051,7 +1061,8 @@ export default function AdminClassSchedulesClient() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-lg rounded-xl bg-white p-5">
-            <h4 className="mb-4 text-lg font-semibold">
+            <h4 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+              <FaIcon icon={editingId == null ? "fa-solid fa-calendar-plus" : "fa-solid fa-pen-to-square"} />
               {editingId == null ? "Thêm lịch học" : "Sửa lịch học"}
             </h4>
             {formError && <p className="mb-3 text-sm text-red-700">{formError}</p>}
@@ -1154,9 +1165,11 @@ export default function AdminClassSchedulesClient() {
                   onClick={() => setModalOpen(false)}
                   className="lte-btn lte-btn-ghost lte-btn-sm"
                 >
+                  <FaIcon icon="fa-solid fa-ban" />
                   Hủy
                 </button>
                 <button type="submit" disabled={saving} className="lte-btn lte-btn-primary lte-btn-sm">
+                  <FaIcon icon={saving ? "fa-solid fa-spinner" : "fa-solid fa-floppy-disk"} className={saving ? "animate-spin" : ""} />
                   {saving ? "Đang lưu..." : "Lưu"}
                 </button>
               </div>
