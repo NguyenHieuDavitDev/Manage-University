@@ -1,6 +1,7 @@
 import { FaIcon } from "@/components/FaIcon";
 
 type Props = {
+  id?: string;
   title?: string;
   titleIcon?: string;
   children: React.ReactNode;
@@ -8,9 +9,10 @@ type Props = {
 };
 
 /** Khối nội dung kiểu “thẻ” cho cổng người dùng — không dùng AdminLTE. */
-export function UserSurface({ title, titleIcon, children, className = "" }: Props) {
+export function UserSurface({ id, title, titleIcon, children, className = "" }: Props) {
   return (
     <section
+      id={id}
       className={`rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8 ${className}`}
     >
       {title && (

@@ -49,4 +49,20 @@ app:
     api-key: ${APP_GEMINI_API_KEY:}
     model: ${APP_GEMINI_MODEL:gemini-3-flash-preview}
     base-url: ${APP_GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+  momo:
+    enabled: ${APP_MOMO_ENABLED:false}
+    partner-code: ${APP_MOMO_PARTNER_CODE:}
+    access-key: ${APP_MOMO_ACCESS_KEY:}
+    secret-key: ${APP_MOMO_SECRET_KEY:}
+    endpoint: ${APP_MOMO_ENDPOINT:https://test-payment.momo.vn/v2/gateway/api/create}
+    redirect-url: ${APP_MOMO_REDIRECT_URL:http://localhost:3000/user/tuition}
+    ipn-url: ${APP_MOMO_IPN_URL:http://localhost:8080/api/v1/student-tuitions/payment-gateway/momo/ipn}
+    request-type: ${APP_MOMO_REQUEST_TYPE:captureWallet}
+    lang: ${APP_MOMO_LANG:vi}
+  invoice:
+    symbol: ${APP_INVOICE_SYMBOL:K26TAA}
+    seller-name: ${APP_INVOICE_SELLER_NAME:TRUONG DAI HOC ST MANAGER}
+    seller-tax-code: ${APP_INVOICE_SELLER_TAX_CODE:0109999999}
+    seller-address: ${APP_INVOICE_SELLER_ADDRESS:Ha Noi, Viet Nam}
+    vat-rate: ${APP_INVOICE_VAT_RATE:0.10}
 

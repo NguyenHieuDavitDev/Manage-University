@@ -95,6 +95,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // /me cần JWT để đọc principal — chỉ login/register mới thực sự public
             return !uri.equals("/api/v1/auth/me");
         }
+        if (uri.equals("/api/v1/student-tuitions/payment-gateway/momo/ipn")
+                && "POST".equalsIgnoreCase(method)) {
+            return true;
+        }
         if (uri.startsWith("/api/v1/files/avatars")) {
             return "GET".equalsIgnoreCase(method) || "POST".equalsIgnoreCase(method);
         }

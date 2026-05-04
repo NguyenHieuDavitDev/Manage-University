@@ -44,6 +44,7 @@ public class SecurityConfig {
                         // /me cần JWT hợp lệ — phải đứng trước wildcard
                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/student-tuitions/payment-gateway/momo/ipn").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/files/avatars/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/files/avatars").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/files/credentials/**").permitAll()

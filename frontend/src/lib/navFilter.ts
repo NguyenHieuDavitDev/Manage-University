@@ -4,6 +4,8 @@ import { normalizedRoleCodes } from "@/lib/portalRouting";
 
 export type NavItemWithPermission = NavItem & { permissionCode?: string };
 
+export type NavGroupWithPermission = { groupLabel: string; items: NavItemWithPermission[] };
+
 /**
  * Lọc sidebar theo Permission + vai trò (từ `/me` → `displayPermissions`).
  *
@@ -40,4 +42,18 @@ export function filterNavByDisplayPermissions(
     if (!it.permissionCode) return true;
     return allowed.has(it.permissionCode.trim().toLowerCase());
   });
+}
+
+/** Lọc sidebar theo nhóm: bỏ nhóm rỗng sau khi lọc từng mục. */
+export function filterNavGroupsByDisplayPermissions(
+  groups: NavGroupWithPermission[],
+  me: AuthMeResponse | null,
+  portal: "admin" | "user"
+): { groupLabel: string; items: NavItem[] }[] {
+  return groups
+    .map((g) => ({
+      groupLabel: g.groupLabel,
+      items: filterNavByDisplayPermissions(g.items, me, portal),
+    }))
+    .filter((g) => g.items.length > 0);
 }

@@ -24,6 +24,16 @@ export const USER_SIDEBAR_NAV: NavItemWithPermission[] = [
     icon: "fa-solid fa-square-poll-vertical",
   },
   {
+    href: "/user/tuition",
+    label: "Học phí",
+    icon: "fa-solid fa-money-check-dollar",
+  },
+  {
+    href: "/user/tuition#payment-history-stats",
+    label: "Thống kê lịch sử thanh toán",
+    icon: "fa-solid fa-chart-line",
+  },
+  {
     href: "/user/roles",
     label: "Vai trò",
     icon: "fa-solid fa-shield-halved",

@@ -82,6 +82,24 @@ export default function UserHomePage() {
                 />
               </Link>
             </li>
+            <li>
+              <Link
+                href="/user/tuition"
+                className="group flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4 transition hover:border-pink-200 hover:bg-pink-50/50"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pink-600 text-white shadow-sm">
+                  <FaIcon icon="fa-solid fa-money-check-dollar" />
+                </span>
+                <span>
+                  <span className="block font-semibold text-slate-900">Học phí</span>
+                  <span className="text-sm text-slate-500">Thanh toán nhiều lần qua MoMo</span>
+                </span>
+                <FaIcon
+                  icon="fa-solid fa-chevron-right"
+                  className="ml-auto text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-pink-500"
+                />
+              </Link>
+            </li>
           </ul>
         </UserSurface>
       </div>

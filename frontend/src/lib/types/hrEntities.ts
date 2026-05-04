@@ -110,6 +110,121 @@ export type GradeComponentPayload = {
   weightPercent?: number | null;
 };
 
+export interface TuitionRate {
+  id: number;
+  tuitionCode: string;
+  tuitionName: string;
+  trainingProgramId: number | null;
+  trainingProgramCode: string | null;
+  trainingProgramName: string | null;
+  trainingProgramTotalCredits: number | null;
+  feePerCredit: number;
+  totalTuition: number | null;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type TuitionRatePayload = {
+  tuitionCode: string;
+  tuitionName: string;
+  trainingProgramId: number;
+  feePerCredit: number;
+  description?: string | null;
+};
+
+export interface StudentTuition {
+  id: number;
+  userId: string;
+  userFullName: string | null;
+  tuitionRateId: number | null;
+  tuitionRateName: string | null;
+  academicYear: string;
+  semester: number;
+  totalCredits: number | null;
+  amountDue: number;
+  amountPaid: number;
+  paymentStatus: string;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type StudentTuitionPayload = {
+  userId: string;
+  tuitionRateId?: number | null;
+  academicYear: string;
+  semester: number;
+  totalCredits?: number | null;
+  amountDue: number;
+  amountPaid: number;
+  notes?: string | null;
+};
+
+export type StudentTuitionGeneratePlanPayload = {
+  userId: string;
+  tuitionRateId: number;
+  startYear: number;
+  endYear: number;
+};
+
+export type StudentTuitionPaymentMethod = "MOMO" | "MANUAL" | "BANK_TRANSFER" | "CARD";
+
+export type StudentTuitionPayPayload = {
+  amount: number;
+  paymentMethod: StudentTuitionPaymentMethod;
+  note?: string | null;
+};
+
+export type StudentTuitionPayResponse = {
+  paymentId: number;
+  studentTuitionId: number;
+  amount: number;
+  paymentMethod: string;
+  status: string;
+  orderId: string | null;
+  requestId: string | null;
+  payUrl: string | null;
+  deeplink: string | null;
+  qrCodeUrl: string | null;
+  invoiceId: number | null;
+  invoiceNo: string | null;
+  invoiceUrl: string | null;
+  message: string | null;
+};
+
+export type StudentTuitionPaymentHistory = {
+  paymentId: number;
+  studentTuitionId: number;
+  userId: string;
+  userFullName: string | null;
+  academicYear: string;
+  semester: number;
+  amount: number;
+  paymentMethod: string;
+  status: string;
+  invoiceId: number | null;
+  invoiceNo: string | null;
+  createdAt: string;
+};
+
+export interface TrainingProgram {
+  id: number;
+  programCode: string;
+  programName: string;
+  totalCredits: number;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type TrainingProgramPayload = {
+  programCode: string;
+  programName: string;
+  totalCredits: number;
+  description?: string | null;
+};
+
 export interface Position {
   id: number;
   positionCode: string;

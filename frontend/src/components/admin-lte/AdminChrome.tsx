@@ -3,8 +3,8 @@
 import { AdminLteShell } from "@/components/admin-lte/AdminLteShell";
 import { fetchMe } from "@/lib/api/auth";
 import { readAuthMeSnapshot, writeAuthMeSnapshot } from "@/lib/auth-me-snapshot";
-import { ADMIN_SIDEBAR_NAV } from "@/lib/adminSidebarNav";
-import { filterNavByDisplayPermissions } from "@/lib/navFilter";
+import { ADMIN_SIDEBAR_GROUPS } from "@/lib/adminSidebarNav";
+import { filterNavGroupsByDisplayPermissions } from "@/lib/navFilter";
 import { normalizedRoleCodes } from "@/lib/portalRouting";
 import type { AuthMeResponse } from "@/lib/types/auth";
 import { useEffect, useMemo, useState } from "react";
@@ -37,24 +37,28 @@ export function AdminChrome({ children }: Props) {
     };
   }, []);
 
-  const navItems = useMemo(() => {
-    const filtered = filterNavByDisplayPermissions(ADMIN_SIDEBAR_NAV, me, "admin");
-    if (me == null) return filtered;
-    const isAdmin = normalizedRoleCodes(me?.roles ?? []).has("ADMIN");
-    if (isAdmin) return filtered;
-    return filtered.filter(
-      (item) =>
-        item.href !== "/admin/users" &&
-        item.href !== "/admin/permissions" &&
-        item.href !== "/admin/roles"
-    );
+  const navGroups = useMemo(() => {
+    const base = filterNavGroupsByDisplayPermissions(ADMIN_SIDEBAR_GROUPS, me, "admin").map((g) => ({
+      label: g.groupLabel,
+      items: g.items,
+    }));
+    if (me == null) return base;
+    const isAdmin = normalizedRoleCodes(me.roles).has("ADMIN");
+    if (isAdmin) return base;
+    const hidden = new Set(["/admin/users", "/admin/permissions", "/admin/roles"]);
+    return base
+      .map((g) => ({
+        label: g.label,
+        items: g.items.filter((item) => !hidden.has(item.href)),
+      }))
+      .filter((g) => g.items.length > 0);
   }, [me]);
 
   return (
     <AdminLteShell
       area="admin"
       brandSubtitle="Quản trị"
-      navItems={navItems}
+      navGroups={navGroups}
       showLogoutButton
     >
       {children}

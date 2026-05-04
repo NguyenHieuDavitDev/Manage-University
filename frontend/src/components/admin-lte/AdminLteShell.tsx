@@ -4,7 +4,7 @@ import { FaIcon } from "@/components/FaIcon";
 import { clearAccessToken } from "@/lib/auth-storage";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 
 const SIDEBAR_COLLAPSED_KEY = "lte-sidebar-collapsed";
 
@@ -16,19 +16,65 @@ export type NavItem = {
   permissionCode?: string;
 };
 
+/** Nhóm mục sidebar (quản trị: theo nghiệp vụ). */
+export type NavGroup = { label: string; items: NavItem[] };
+
 type Props = {
   area: "user" | "admin";
   brandSubtitle: string;
-  navItems: NavItem[];
+  /** Menu phẳng (một cột) — dùng khi không truyền `navGroups`. */
+  navItems?: NavItem[];
+  /** Menu theo nhóm (ưu tiên hơn `navItems` khi có phần tử). */
+  navGroups?: NavGroup[];
   children: React.ReactNode;
   /** Hiện nút đăng xuất (xóa JWT). Mặc định bật. */
   showLogoutButton?: boolean;
 };
 
+function renderNavLink(
+  item: NavItem,
+  pathname: string | null,
+  sidebarCollapsed: boolean,
+  onNavigate: () => void
+) {
+  const active =
+    pathname === item.href ||
+    (item.href !== "/user" && item.href !== "/admin" && (pathname?.startsWith(item.href) ?? false));
+  return (
+    <li key={`${item.href}::${item.label}`}>
+      <Link
+        href={item.href}
+        title={item.label}
+        aria-label={item.label}
+        onClick={onNavigate}
+        className={`flex items-center rounded-lg border-l-[3px] py-2.5 text-sm font-medium transition-colors duration-150 ${
+          sidebarCollapsed ? "justify-center px-2" : "gap-3 px-3"
+        } ${
+          active
+            ? "border-[#3c8dbc] bg-[#1e282c] text-white shadow-inner"
+            : "border-transparent text-[#b8c7ce] hover:bg-[#1e282c] hover:text-white"
+        }`}
+      >
+        <FaIcon
+          icon={item.icon}
+          className={`w-5 shrink-0 text-center text-base ${active ? "text-[#7ec8e8]" : "text-[#7a8793]"}`}
+        />
+        {!sidebarCollapsed && (
+          <>
+            <span className="min-w-0 flex-1 truncate">{item.label}</span>
+            {active && <FaIcon icon="fa-solid fa-chevron-right" className="text-[10px] opacity-70" />}
+          </>
+        )}
+      </Link>
+    </li>
+  );
+}
+
 export function AdminLteShell({
   area,
   brandSubtitle,
-  navItems,
+  navItems = [],
+  navGroups,
   children,
   showLogoutButton = true,
 }: Props) {
@@ -65,6 +111,9 @@ export function AdminLteShell({
   const otherLabel = area === "admin" ? "Cổng người dùng" : "Cổng quản trị";
   const otherIcon =
     area === "admin" ? "fa-solid fa-user-group" : "fa-solid fa-screwdriver-wrench";
+
+  const useGrouped = navGroups != null && navGroups.length > 0;
+  const flatForLegacy = !useGrouped ? navItems : [];
 
   return (
     <div className="adminlte-app flex min-h-screen flex-col text-[#2c3e50]">
@@ -160,46 +209,31 @@ export function AdminLteShell({
             {!sidebarCollapsed && <span className="truncate">{brandSubtitle}</span>}
           </div>
           <ul className="flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3 [scrollbar-gutter:stable]">
-            {navItems.map((item) => {
-              const active =
-                pathname === item.href ||
-                (item.href !== "/user" &&
-                  item.href !== "/admin" &&
-                  pathname.startsWith(item.href));
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    title={item.label}
-                    aria-label={item.label}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center rounded-lg border-l-[3px] py-2.5 text-sm font-medium transition-colors duration-150 ${
-                      sidebarCollapsed ? "justify-center px-2" : "gap-3 px-3"
-                    } ${
-                      active
-                        ? "border-[#3c8dbc] bg-[#1e282c] text-white shadow-inner"
-                        : "border-transparent text-[#b8c7ce] hover:bg-[#1e282c] hover:text-white"
-                    }`}
-                  >
-                    <FaIcon
-                      icon={item.icon}
-                      className={`w-5 shrink-0 text-center text-base ${active ? "text-[#7ec8e8]" : "text-[#7a8793]"}`}
-                    />
-                    {!sidebarCollapsed && (
-                      <>
-                        <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                        {active && (
-                          <FaIcon
-                            icon="fa-solid fa-chevron-right"
-                            className="text-[10px] opacity-70"
-                          />
-                        )}
-                      </>
+            {useGrouped
+              ? navGroups!.map((group, gi) => (
+                  <Fragment key={group.label}>
+                    {gi > 0 && (
+                      <li className="px-1 py-2" aria-hidden>
+                        <div
+                          className={`h-px ${sidebarCollapsed ? "mx-1.5 bg-white/10" : "bg-white/10"}`}
+                        />
+                      </li>
                     )}
-                  </Link>
-                </li>
-              );
-            })}
+                    {!sidebarCollapsed && (
+                      <li className={`px-2 pb-1.5 ${gi === 0 ? "pt-0" : "pt-2"}`}>
+                        <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#6d7a86]">
+                          {group.label}
+                        </span>
+                      </li>
+                    )}
+                    {group.items.map((item) =>
+                      renderNavLink(item, pathname, sidebarCollapsed, () => setMobileOpen(false))
+                    )}
+                  </Fragment>
+                ))
+              : flatForLegacy.map((item) =>
+                  renderNavLink(item, pathname, sidebarCollapsed, () => setMobileOpen(false))
+                )}
           </ul>
 
           <div className="hidden border-t border-black/15 p-2 md:block">
