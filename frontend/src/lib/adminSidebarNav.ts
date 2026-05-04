@@ -140,6 +140,12 @@ export const ADMIN_SIDEBAR_GROUPS: NavGroupWithPermission[] = [
         permissionCode: "admin:student_grades",
       },
       {
+        href: "/admin/attendance",
+        label: "Điểm danh lớp",
+        icon: "fa-solid fa-clipboard-user",
+        permissionCode: "admin:attendance",
+      },
+      {
         href: "/admin/exams",
         label: "Lịch thi",
         icon: "fa-solid fa-calendar-check",

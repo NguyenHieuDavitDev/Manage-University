@@ -43,6 +43,7 @@ public final class SidebarMenuCatalog {
                             new MenuItem("admin:grade_scales", "Thang điểm chữ"),
                             new MenuItem("admin:course_classes", "Lớp học phần"),
                             new MenuItem("admin:student_grades", "Chấm điểm sinh viên"),
+                            new MenuItem("admin:attendance", "Điểm danh lớp"),
                             new MenuItem("admin:exams", "Lịch thi"),
                             new MenuItem("admin:class_schedules", "Quản lý lịch học"),
                             new MenuItem("admin:departments", "Phòng ban"),

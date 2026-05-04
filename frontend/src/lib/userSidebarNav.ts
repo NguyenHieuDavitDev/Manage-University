@@ -24,6 +24,11 @@ export const USER_SIDEBAR_NAV: NavItemWithPermission[] = [
     icon: "fa-solid fa-square-poll-vertical",
   },
   {
+    href: "/user/attendance",
+    label: "Điểm danh",
+    icon: "fa-solid fa-clipboard-check",
+  },
+  {
     href: "/user/tuition",
     label: "Học phí",
     icon: "fa-solid fa-money-check-dollar",

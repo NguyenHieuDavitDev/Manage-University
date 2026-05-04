@@ -30,6 +30,8 @@ public class SchemaPatchRunner implements ApplicationRunner {
         ensureStudentTuitionsTable();
         ensureStudentTuitionPaymentsTable();
         ensureStudentTuitionInvoicesTable();
+        ensureClassAttendanceTable();
+        ensureClassAttendanceClassScheduleMigration();
     }
 
     private void ensureCourseClassesGradebookFinalizedColumn() {
@@ -304,5 +306,106 @@ public class SchemaPatchRunner implements ApplicationRunner {
                         FOREIGN KEY (payment_id) REFERENCES student_tuition_payments(id)
                 )
                 """);
+    }
+
+    private void ensureClassAttendanceTable() {
+        Integer count = jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*)
+                        FROM INFORMATION_SCHEMA.TABLES
+                        WHERE TABLE_NAME = 'class_attendance'
+                        """,
+                Integer.class);
+        if (count != null && count > 0) {
+            return;
+        }
+        jdbcTemplate.execute("""
+                CREATE TABLE class_attendance (
+                    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+                    enrollment_id BIGINT NOT NULL,
+                    class_schedule_id BIGINT NOT NULL,
+                    session_date DATE NOT NULL,
+                    status NVARCHAR(20) NOT NULL,
+                    recorded_by_user_id UNIQUEIDENTIFIER NULL,
+                    created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+                    updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+                    CONSTRAINT uk_class_attendance_enrollment_schedule_session UNIQUE (enrollment_id, class_schedule_id, session_date),
+                    CONSTRAINT fk_class_attendance_enrollment FOREIGN KEY (enrollment_id) REFERENCES course_class_enrollments(id),
+                    CONSTRAINT fk_class_attendance_schedule FOREIGN KEY (class_schedule_id) REFERENCES class_schedules(id),
+                    CONSTRAINT fk_class_attendance_recorded_by FOREIGN KEY (recorded_by_user_id) REFERENCES users(Id)
+                )
+                """);
+    }
+
+    /**
+     * Nâng bảng {@code class_attendance} cũ (chỉ có enrollment + ngày) lên mô hình gắn {@code class_schedule_id}.
+     * Dữ liệu điểm danh cũ không gắn được tiết — sẽ bị xóa trước khi thêm ràng buộc mới.
+     */
+    private void ensureClassAttendanceClassScheduleMigration() {
+        Integer tableCount = jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*)
+                        FROM INFORMATION_SCHEMA.TABLES
+                        WHERE TABLE_NAME = 'class_attendance'
+                        """,
+                Integer.class);
+        if (tableCount == null || tableCount == 0) {
+            return;
+        }
+        Integer col = jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*)
+                        FROM INFORMATION_SCHEMA.COLUMNS
+                        WHERE TABLE_NAME = 'class_attendance'
+                          AND COLUMN_NAME = 'class_schedule_id'
+                        """,
+                Integer.class);
+        if (col != null && col > 0) {
+            return;
+        }
+        jdbcTemplate.execute("ALTER TABLE class_attendance ADD class_schedule_id BIGINT NULL");
+        Integer oldUk = jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*)
+                        FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                        WHERE TABLE_NAME = 'class_attendance'
+                          AND CONSTRAINT_NAME = 'uk_class_attendance_enrollment_session'
+                        """,
+                Integer.class);
+        if (oldUk != null && oldUk > 0) {
+            jdbcTemplate.execute(
+                    "ALTER TABLE class_attendance DROP CONSTRAINT uk_class_attendance_enrollment_session");
+        }
+        jdbcTemplate.execute("DELETE FROM class_attendance");
+        jdbcTemplate.execute("ALTER TABLE class_attendance ALTER COLUMN class_schedule_id BIGINT NOT NULL");
+        Integer fk = jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*)
+                        FROM sys.foreign_keys
+                        WHERE name = 'fk_class_attendance_schedule'
+                        """,
+                Integer.class);
+        if (fk == null || fk == 0) {
+            jdbcTemplate.execute("""
+                    ALTER TABLE class_attendance
+                    ADD CONSTRAINT fk_class_attendance_schedule
+                    FOREIGN KEY (class_schedule_id) REFERENCES class_schedules(id)
+                    """);
+        }
+        Integer newUk = jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*)
+                        FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                        WHERE TABLE_NAME = 'class_attendance'
+                          AND CONSTRAINT_NAME = 'uk_class_attendance_enrollment_schedule_session'
+                        """,
+                Integer.class);
+        if (newUk == null || newUk == 0) {
+            jdbcTemplate.execute("""
+                    ALTER TABLE class_attendance
+                    ADD CONSTRAINT uk_class_attendance_enrollment_schedule_session
+                    UNIQUE (enrollment_id, class_schedule_id, session_date)
+                    """);
+        }
     }
 }
